@@ -22,7 +22,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y git make gcc # Install build tools and git
-          git clone https://github.com/bytexenon/LuaXen.git
+          git clone https://github.com/bdgxs/LuaXen.git
           cd LuaXen
           make # Compile LuaXen if needed.
           cd ..
