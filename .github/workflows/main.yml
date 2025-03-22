@@ -1,0 +1,51 @@
+name: Lua Deobfuscation, Bytecode Conversion, and Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deobfuscate_and_convert:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Lua
+        uses: leafo/gh-actions-lua@v9
+        with:
+          luaVersion: "5.1"
+
+      - name: Install LuaXen Dependencies and LuaXen
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git make gcc # Install build tools and git
+          git clone https://github.com/bytexenon/LuaXen.git
+          cd LuaXen
+          make # Compile LuaXen if needed.
+          cd ..
+
+      - name: Deobfuscate Lua script
+        run: |
+          lua LuaXen/deobfuscator.lua butter.lua > deobfuscated_script.lua
+
+      - name: Compile Lua to bytecode
+        run: |
+          luac -o bytecode.luac deobfuscated_script.lua
+
+      - name: Decompile bytecode to readable Lua (using LuaXen)
+        run: |
+          lua LuaXen/disassembler.lua bytecode.luac > decompiled_script.lua
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            deobfuscated_script.lua
+            bytecode.luac
+            decompiled_script.lua
+          tag_name: "Deobfuscated-Release-${{ github.run_id }}"
+          name: "Deobfuscated Lua Release ${{ github.run_id }}"
+          body: "Release of deobfuscated lua and bytecode."
