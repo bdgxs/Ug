@@ -1,4 +1,4 @@
-name: Lua Deobfuscation, Bytecode Conversion, and Release
+name: Luraph Deobfuscation and Bytecode Conversion
 
 on:
   push:
@@ -16,35 +16,31 @@ jobs:
       - name: Set up Lua
         uses: leafo/gh-actions-lua@v9
         with:
-          luaVersion: "5.1" # or any of 5.1, 5.2, 5.3, 5.4
+          luaVersion: "5.1" # or any compatible version
 
-      - name: Install Dependencies
+      - name: Install LuraphDeobfuscator
         run: |
-          sudo apt-get update
-          sudo apt-get install -y git coreutils
+          git clone https://github.com/PhoenixZeng/LuraphDeobfuscator.git
+          # Check the LuraphDeobfuscator readme for any build steps or dependencies.
+          # If there are any, add them here.
+          # Example:
+          # cd LuraphDeobfuscator
+          # make
+          # cd ..
 
-      - name: Install LuaXen
+      - name: Deobfuscate Luraph script
         run: |
-          git clone https://github.com/bytexenon/LuaXen.git
-          cd LuaXen
-          # Attempt to define INSTALL and RM, if not already defined
-          INSTALL="install"
-          RM="rm"
-          make install || { echo "LuaXen installation failed!"; exit 1; }
-          # Add test command
-          make test || { echo "LuaXen tests failed!"; exit 1; }
-
-      - name: Deobfuscate Lua script
-        run: |
-          lua /usr/share/lua/5.1/LuaXen/deobfuscator.lua butter.lua > deobfuscated_script.lua
+          lua LuraphDeobfuscator/deobfuscator.lua luraph_script.lua > deobfuscated_script.lua # Replace luraph_script.lua
 
       - name: Compile Lua to bytecode
         run: |
           luac -o bytecode.luac deobfuscated_script.lua
 
-      - name: Decompile bytecode to readable Lua (using LuaXen)
+      - name: Decompile bytecode with Unluac
         run: |
-          lua /usr/share/lua/5.1/LuaXen/disassembler.lua bytecode.luac > decompiled_script.lua
+          sudo apt-get update
+          sudo apt-get install -y unluac
+          unluac bytecode.luac > decompiled_script.lua
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -53,6 +49,6 @@ jobs:
             deobfuscated_script.lua
             bytecode.luac
             decompiled_script.lua
-          tag_name: "Deobfuscated-Release-${{ github.run_id }}"
-          name: "Deobfuscated Lua Release ${{ github.run_id }}"
-          body: "Release of deobfuscated lua and bytecode."
+          tag_name: "Luraph-Deobfuscated-Release-${{ github.run_id }}"
+          name: "Luraph Deobfuscated Release ${{ github.run_id }}"
+          body: "Release of Luraph deobfuscated lua and bytecode."
