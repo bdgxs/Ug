@@ -18,10 +18,10 @@ jobs:
         with:
           luaVersion: "5.1" # or any of 5.1, 5.2, 5.3, 5.4
 
-      - name: Install LuaXen Dependencies
+      - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y git
+          sudo apt-get install -y git coreutils
 
       - name: Install LuaXen
         run: |
