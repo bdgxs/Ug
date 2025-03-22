@@ -16,16 +16,16 @@ jobs:
       - name: Set up Lua
         uses: leafo/gh-actions-lua@v9
         with:
-          luaVersion: "5.1"
+          luaVersion: "5.1" # or any of 5.1, 5.2, 5.3, 5.4
 
       - name: Install LuaXen Dependencies and LuaXen
         run: |
           sudo apt-get update
-          sudo apt-get install -y git make gcc # Install build tools and git
-          git clone https://github.com/bdgxs/LuaXen.git
+          sudo apt-get install -y git make # Install build tools and git
+          git clone https://github.com/bytexenon/LuaXen.git
           cd LuaXen
-          make # Compile LuaXen if needed.
-          cd ..
+          make install # Use the install target from the Makefile
+          # the make file installs the files to /usr/share/lua/5.1 or other versions.
 
       - name: Deobfuscate Lua script
         run: |
