@@ -16,31 +16,37 @@ jobs:
       - name: Set up Lua
         uses: leafo/gh-actions-lua@v9
         with:
-          luaVersion: "5.1" # or any compatible version
+          luaVersion: "5.1" # Adjust if needed
+
+      - name: Install LuraphDeobfuscator Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git
+          # Check LuraphDeobfuscator README for any specific dependencies.
+          # Example (if needed):
+          # sudo apt-get install -y some-dependency
 
       - name: Install LuraphDeobfuscator
         run: |
           git clone https://github.com/PhoenixZeng/LuraphDeobfuscator.git
-          # Check the LuraphDeobfuscator readme for any build steps or dependencies.
-          # If there are any, add them here.
-          # Example:
-          # cd LuraphDeobfuscator
-          # make
-          # cd ..
+          cd LuraphDeobfuscator
+          # No explicit build instructions found in the README.
+          # If a build is required, add commands here.
+          cd ..
 
-      - name: Deobfuscate Luraph script
+      - name: Deobfuscate Luraph script (Butter.lua)
         run: |
-          lua LuraphDeobfuscator/deobfuscator.lua luraph_script.lua > deobfuscated_script.lua # Replace luraph_script.lua
+          lua LuraphDeobfuscator/deobfuscator.lua Butter.lua > deobfuscated_script.lua || { echo "Luraph deobfuscation failed!"; exit 1; }
 
       - name: Compile Lua to bytecode
         run: |
-          luac -o bytecode.luac deobfuscated_script.lua
+          luac -o bytecode.luac deobfuscated_script.lua || { echo "Lua compilation failed!"; exit 1; }
 
       - name: Decompile bytecode with Unluac
         run: |
           sudo apt-get update
           sudo apt-get install -y unluac
-          unluac bytecode.luac > decompiled_script.lua
+          unluac bytecode.luac > decompiled_script.lua || { echo "Unluac decompilation failed!"; exit 1; }
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
