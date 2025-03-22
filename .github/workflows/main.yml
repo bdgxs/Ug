@@ -18,18 +18,25 @@ jobs:
         with:
           luaVersion: "5.1" # or any of 5.1, 5.2, 5.3, 5.4
 
-      - name: Install LuaXen Dependencies and LuaXen
+      - name: Install LuaXen Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y git make # Install build tools and git
+          sudo apt-get install -y git
+
+      - name: Install LuaXen
+        run: |
           git clone https://github.com/bytexenon/LuaXen.git
           cd LuaXen
-          make install # Use the install target from the Makefile
-          # the make file installs the files to /usr/share/lua/5.1 or other versions.
+          # Attempt to define INSTALL and RM, if not already defined
+          INSTALL="install"
+          RM="rm"
+          make install || { echo "LuaXen installation failed!"; exit 1; }
+          # Add test command
+          make test || { echo "LuaXen tests failed!"; exit 1; }
 
       - name: Deobfuscate Lua script
         run: |
-          lua LuaXen/deobfuscator.lua butter.lua > deobfuscated_script.lua
+          lua /usr/share/lua/5.1/LuaXen/deobfuscator.lua butter.lua > deobfuscated_script.lua
 
       - name: Compile Lua to bytecode
         run: |
@@ -37,7 +44,7 @@ jobs:
 
       - name: Decompile bytecode to readable Lua (using LuaXen)
         run: |
-          lua LuaXen/disassembler.lua bytecode.luac > decompiled_script.lua
+          lua /usr/share/lua/5.1/LuaXen/disassembler.lua bytecode.luac > decompiled_script.lua
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
